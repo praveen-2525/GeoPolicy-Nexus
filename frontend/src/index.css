@@ -1,0 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans:wght@300;400;500;600;700&family=Source+Sans+3:wght@300;400;600;700&display=swap');
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@theme {
+  --font-sans: 'Inter', 'Noto Sans', 'Source Sans 3', system-ui, sans-serif;
+  --font-mono: 'Noto Sans', 'Source Sans 3', sans-serif;
+}
+
+@layer base {
+  :root {
+    --primary-navy: #0F172A;
+    --accent-emerald: #059669;
+    --gov-blue: #1E3A8A;
+    --gold-accent: #D97706;
+  }
+
+  body {
+    background-color: #020617;
+    color: #F8FAFC;
+    font-family: 'Inter', 'Noto Sans', 'Source Sans 3', system-ui, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+  }
+}
+
+/* Custom Utilities & Animations */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.dark-glass {
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.navy-emerald-gradient {
+  background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #047857 100%);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #090d16;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+@keyframes pulseSlow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.92; transform: scale(1.01); }
+}
+
+.pulse-glow {
+  animation: pulseSlow 4s infinite ease-in-out;
+}
+
+.leaflet-container {
+  background-color: #0b1329 !important;
+  border-radius: 1rem;
+}
+
+/* Google Translate Widget Customizations for Dark Theme */
+body {
+  top: 0 !important;
+}
+.skiptranslate iframe {
+  display: none !important;
+}
+.goog-te-gadget {
+  font-family: inherit !important;
+  color: transparent !important;
+  font-size: 0px !important;
+}
+.goog-te-gadget .goog-te-combo {
+  margin: 0 !important;
+  padding: 2px 4px !important;
+  color: #CBD5E1 !important;
+  background-color: #1E293B !important;
+  border: 1px solid #334155 !important;
+  border-radius: 4px !important;
+  font-size: 11px !important;
+  font-family: inherit !important;
+  outline: none;
+  cursor: pointer;
+}
+.goog-logo-link, .goog-te-gadget span {
+  display: none !important;
+}
