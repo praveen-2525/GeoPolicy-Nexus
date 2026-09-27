@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const AuditLog = require('../models/AuditLog');
 const jwt = require('jsonwebtoken');
 
 // Helper to generate JWT Token
@@ -54,10 +55,21 @@ exports.registerUser = async (req, res) => {
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+    const ipAddress = req.ip || req.connection.remoteAddress;
+    const userAgent = req.headers['user-agent'] || 'Unknown';
 
     const user = await User.findOne({ email }).select('+password');
 
     if (user && (await user.matchPassword(password))) {
+      await AuditLog.create({
+        user: user._id,
+        action: 'Login',
+        resource: 'Authentication',
+        status: 'Success',
+        ipAddress,
+        userAgent
+      });
+
       res.json({
         _id: user._id,
         name: user.name,
@@ -70,8 +82,67 @@ exports.loginUser = async (req, res) => {
         token: generateToken(user._id)
       });
     } else {
+      if (user) {
+         await AuditLog.create({
+            user: user._id,
+            action: 'Login',
+            resource: 'Authentication',
+            status: 'Failed',
+            ipAddress,
+            userAgent,
+            details: { reason: 'Invalid password' }
+         });
+      } else {
+         await AuditLog.create({
+            action: 'Login',
+            resource: 'Authentication',
+            status: 'Failed',
+            ipAddress,
+            userAgent,
+            details: { reason: 'User not found', emailAttempted: email }
+         });
+      }
       res.status(401).json({ message: 'Invalid email or password' });
     }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Generate OTP (Mock for Demo)
+// @route   POST /api/auth/generate-otp
+// @access  Public
+exports.generateOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const otp = '123456'; // Mock OTP for SIH demo
+    user.otp = otp;
+    user.otpExpire = Date.now() + 10 * 60 * 1000;
+    await user.save();
+    res.status(200).json({ message: 'OTP sent successfully (Use 123456 for demo)' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Verify OTP
+// @route   POST /api/auth/verify-otp
+// @access  Public
+exports.verifyOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const user = await User.findOne({ email, otp, otpExpire: { $gt: Date.now() } });
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired OTP' });
+    }
+    user.otp = undefined;
+    user.otpExpire = undefined;
+    await user.save();
+    res.status(200).json({ message: 'OTP Verified successfully', token: generateToken(user._id) });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

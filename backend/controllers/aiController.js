@@ -52,11 +52,13 @@ exports.consultAi = async (req, res) => {
     const geminiKey = process.env.GEMINI_API_KEY;
 
     if (geminiKey) {
-      try {
-        const genAI = new GoogleGenerativeAI(geminiKey);
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const candidateModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash-latest', 'gemini-1.5-pro'];
+      for (const modelName of candidateModels) {
+        try {
+          const genAI = new GoogleGenerativeAI(geminiKey);
+          const model = genAI.getGenerativeModel({ model: modelName });
 
-        const prompt = `
+          const prompt = `
 You are GeoPolicy Nexus AI Assistant, a senior land governance specialist & policy researcher for the Government of India.
 User Query: "${queryStr}"
 
@@ -72,11 +74,15 @@ Provide a structured executive synthesis (3-4 paragraphs in clean Markdown) addr
 3. Actionable Policy Recommendations & Digital Infrastructure (ULPIN, SVAMITVA, GIS) solutions.
 `;
 
-        const result = await model.generateContent(prompt);
-        const responseText = await result.response.text();
-        aiSummaryText = responseText;
-      } catch (geminiError) {
-        console.warn('Gemini API call failed, falling back to expert synthesis engine:', geminiError.message);
+          const result = await model.generateContent(prompt);
+          const responseText = await result.response.text();
+          if (responseText && responseText.trim()) {
+            aiSummaryText = responseText;
+            break;
+          }
+        } catch (geminiError) {
+          console.warn(`Gemini API call with model ${modelName} failed:`, geminiError.message);
+        }
       }
     }
 

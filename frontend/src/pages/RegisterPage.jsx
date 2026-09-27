@@ -1,178 +1,305 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { UserPlus, Lock, Mail, User, Building2, MapPin, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { 
+  UserPlus, 
+  Lock, 
+  Mail, 
+  User, 
+  Building, 
+  MapPin, 
+  ShieldCheck, 
+  ArrowLeft,
+  FileCheck2,
+  CheckCircle2
+} from 'lucide-react';
+
+const GOI_ROLES = [
+  {
+    id: 'Researcher',
+    title: 'Researcher',
+    desc: 'Publish papers, upload cadastral case studies, collaborate with GIS labs, and utilize AI Research Copilot.'
+  },
+  {
+    id: 'Policymaker',
+    title: 'Policymaker',
+    desc: 'Simulate land policy reforms, review academic recommendations, and evaluate socio-economic impacts.'
+  },
+  {
+    id: 'Government Official',
+    title: 'Government Official',
+    desc: 'Review and approve publications, verify spatial datasets, and track state administrative metrics.'
+  },
+  {
+    id: 'Citizen',
+    title: 'Citizen / Landowner',
+    desc: 'Explore public land research, view state GIS vectors, track ULPIN status, and submit governance feedback.'
+  }
+];
+
+const STATES_LIST = [
+  'National Jurisdiction', 'Maharashtra', 'Karnataka', 'Gujarat', 'Tamil Nadu', 
+  'Delhi', 'Telangana', 'Uttar Pradesh', 'Rajasthan', 'Madhya Pradesh', 
+  'Kerala', 'Andhra Pradesh', 'West Bengal', 'Bihar', 'Odisha', 'Punjab', 
+  'Haryana', 'Assam', 'Himachal Pradesh', 'Uttarakhand', 'Jharkhand'
+];
 
 export const RegisterPage = ({ setCurrentPage }) => {
   const { register } = useContext(AuthContext);
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     role: 'Researcher',
+    designation: '',
     organization: '',
     state: 'Maharashtra',
     bio: ''
   });
+
+  const [agreed, setAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!agreed) {
+      setErrorMsg('Please accept the official Government of India portal declaration.');
+      return;
+    }
     setSubmitting(true);
+    setErrorMsg('');
+
     try {
       await register(formData);
       setSubmitting(false);
       setCurrentPage('dashboard');
     } catch (err) {
       setSubmitting(false);
-      alert(err.message || 'Registration failed');
+      setErrorMsg(err.message || 'Registration failed. Please try again.');
     }
   };
 
   return (
-    <div className="min-h-[85vh] bg-slate-950 flex items-center justify-center p-4 sm:p-6 lg:p-8">
-      <div className="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden p-8 space-y-6">
+    <div className="min-h-[85vh] bg-slate-50 flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans">
+      <div className="w-full max-w-3xl bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden">
         
-        <div className="text-center space-y-2">
-          <div className="inline-flex p-3 rounded-2xl bg-emerald-950 text-emerald-400 border border-emerald-800 mb-2">
-            <UserPlus className="w-6 h-6" />
+        {/* Tricolor Ribbon */}
+        <div className="tricolor-stripe"></div>
+
+        {/* Top Header */}
+        <div className="bg-[#0A3678] text-white p-6 sm:p-8 flex items-center justify-between border-b border-blue-900">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-[11px] font-bold bg-amber-400 text-slate-900">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Official Government Portal Enrolment</span>
+            </div>
+            <h2 className="text-xl font-extrabold tracking-tight">Register Delegate Credentials</h2>
+            <p className="text-xs text-blue-100">
+              National Digital Platform for Land Governance &bull; Ministry of Rural Development
+            </p>
           </div>
-          <h2 className="text-2xl font-extrabold text-white">Delegate Portal Registration</h2>
-          <p className="text-xs text-slate-400 max-w-md mx-auto">
-            Register your institution, policymaking body, or research identity to access national land governance repositories.
-          </p>
+
+          <button
+            type="button"
+            onClick={() => setCurrentPage('login')}
+            className="text-xs text-blue-200 hover:text-white flex items-center gap-1 border border-blue-400/40 rounded-lg px-3 py-1.5 transition-colors cursor-pointer"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Already Registered? Sign In</span>
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs text-slate-200">
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="p-6 sm:p-8 space-y-6">
+
+          {errorMsg && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700">
+              {errorMsg}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            
+            {/* Step 1: Role Selection Cards */}
             <div>
-              <label className="block font-semibold text-slate-300 mb-1">Full Legal Name *</label>
-              <div className="relative">
-                <User className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
-                <input
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Prof. Ananya Roy"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-white focus:outline-none focus:border-emerald-500 text-xs"
-                />
+              <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-2 font-mono">
+                1. Select Platform Role
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {GOI_ROLES.map((r) => {
+                  const isSelected = formData.role === r.id;
+                  return (
+                    <div
+                      key={r.id}
+                      onClick={() => setFormData({ ...formData, role: r.id })}
+                      className={`p-3.5 rounded-xl border transition-all cursor-pointer ${
+                        isSelected
+                          ? 'border-[#0A3678] bg-blue-50/70 shadow-sm ring-1 ring-[#0A3678]'
+                          : 'border-slate-200 hover:border-slate-300 bg-white'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className={`text-xs font-bold ${isSelected ? 'text-[#0A3678]' : 'text-slate-800'}`}>
+                          {r.title}
+                        </span>
+                        {isSelected && <CheckCircle2 className="w-4 h-4 text-[#0A3678]" />}
+                      </div>
+                      <p className="text-[11px] text-slate-500 leading-relaxed">{r.desc}</p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            <div>
-              <label className="block font-semibold text-slate-300 mb-1">Official Email Address *</label>
-              <div className="relative">
-                <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
-                <input
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="ananya@institute.ac.in"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-white focus:outline-none focus:border-emerald-500 text-xs"
-                />
+            {/* Step 2: Personal & Official Details */}
+            <div className="space-y-4 pt-2 border-t border-slate-100">
+              <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider font-mono">
+                2. Delegate Identification &amp; Jurisdiction
+              </label>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Full Legal Name</label>
+                  <div className="relative">
+                    <User className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                    <input
+                      type="text"
+                      name="name"
+                      required
+                      value={formData.name}
+                      onChange={handleChange}
+                      placeholder="e.g. Dr. Ramesh Sundaram"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Official Email Address</label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                    <input
+                      type="email"
+                      name="email"
+                      required
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="e.g. ramesh@iitd.ac.in"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Designation / Title</label>
+                  <div className="relative">
+                    <Building className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                    <input
+                      type="text"
+                      name="designation"
+                      required
+                      value={formData.designation}
+                      onChange={handleChange}
+                      placeholder="e.g. Associate Professor / Joint Secretary"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Organization / Department</label>
+                  <div className="relative">
+                    <Building className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                    <input
+                      type="text"
+                      name="organization"
+                      required
+                      value={formData.organization}
+                      onChange={handleChange}
+                      placeholder="e.g. IIT Delhi / State Revenue Board"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">State Jurisdiction</label>
+                  <div className="relative">
+                    <MapPin className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                    <select
+                      name="state"
+                      value={formData.state}
+                      onChange={handleChange}
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white"
+                    >
+                      {STATES_LIST.map((st) => (
+                        <option key={st} value={st}>{st}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Create Secure Password</label>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                    <input
+                      type="password"
+                      name="password"
+                      required
+                      value={formData.password}
+                      onChange={handleChange}
+                      placeholder="••••••••"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="block font-semibold text-slate-300 mb-1">Platform Role *</label>
-              <select
-                value={formData.role}
-                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500 text-xs"
-              >
-                <option value="Researcher">Researcher</option>
-                <option value="Policymaker">Policymaker</option>
-                <option value="Citizen">Citizen</option>
-                <option value="Institution">Institution</option>
-                <option value="Admin">Admin</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block font-semibold text-slate-300 mb-1">State / Territory</label>
-              <select
-                value={formData.state}
-                onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500 text-xs"
-              >
-                <option value="National">National</option>
-                <option value="Maharashtra">Maharashtra</option>
-                <option value="Karnataka">Karnataka</option>
-                <option value="Gujarat">Gujarat</option>
-                <option value="Tamil Nadu">Tamil Nadu</option>
-                <option value="Delhi">Delhi</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block font-semibold text-slate-300 mb-1">Password *</label>
-              <div className="relative">
-                <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
+            {/* Official Declaration Checkbox */}
+            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+              <label className="flex items-start gap-2.5 text-xs text-slate-600 cursor-pointer">
                 <input
-                  type="password"
-                  required
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  placeholder="••••••••"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-white focus:outline-none focus:border-emerald-500 text-xs"
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={(e) => setAgreed(e.target.checked)}
+                  className="mt-0.5 rounded border-slate-300 text-[#0A3678]"
                 />
-              </div>
+                <span className="leading-relaxed">
+                  I hereby declare that the details provided are accurate and that all submissions will comply with the 
+                  <strong> National Data Sharing and Accessibility Policy (NDSAP)</strong> and the 
+                  <strong> Digital Personal Data Protection (DPDP) Act, 2023</strong>.
+                </span>
+              </label>
             </div>
-          </div>
 
-          <div>
-            <label className="block font-semibold text-slate-300 mb-1">Department / Organization Name</label>
-            <div className="relative">
-              <Building2 className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
-              <input
-                type="text"
-                value={formData.organization}
-                onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
-                placeholder="National Institute of Urban Affairs"
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-white focus:outline-none focus:border-emerald-500 text-xs"
-              />
-            </div>
-          </div>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full py-3 rounded-lg bg-[#0A3678] hover:bg-[#002244] text-white font-bold text-xs shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+            >
+              {submitting ? (
+                <span>Generating Digital Credentials...</span>
+              ) : (
+                <>
+                  <UserPlus className="w-4 h-4" />
+                  <span>Submit Application &amp; Create Account</span>
+                </>
+              )}
+            </button>
+          </form>
 
-          <div>
-            <label className="block font-semibold text-slate-300 mb-1">Professional Bio &amp; Research Focus</label>
-            <textarea
-              rows={3}
-              value={formData.bio}
-              onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-              placeholder="Specialization in GIS remote sensing, drone surveys, property right reforms..."
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500 text-xs"
-            />
-          </div>
+        </div>
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-xl shadow-emerald-950/60 flex items-center justify-center gap-2 transition-all mt-4"
-          >
-            {submitting ? (
-              <span>Creating Account...</span>
-            ) : (
-              <>
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Complete Registration &amp; Enter Platform</span>
-              </>
-            )}
-          </button>
-        </form>
-
-        <div className="text-center text-xs text-slate-400">
-          <span>Already registered? </span>
-          <button
-            onClick={() => setCurrentPage('login')}
-            className="text-emerald-400 font-bold hover:underline"
-          >
-            Sign in to existing account
-          </button>
+        {/* Security badge footer */}
+        <div className="bg-slate-50 border-t border-slate-200 px-6 py-3 flex items-center justify-between text-[11px] text-slate-500">
+          <span>Official National Land Governance Platform</span>
+          <span className="font-semibold text-slate-600">NIC CERT-In Secured</span>
         </div>
 
       </div>

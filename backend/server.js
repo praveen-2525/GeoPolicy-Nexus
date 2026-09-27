@@ -34,6 +34,7 @@ app.use('/api/datasets', require('./routes/datasetRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/boundaries', require('./routes/boundaryRoutes'));
 app.use('/api/ai', require('./routes/aiRoutes'));
+app.use('/api/chat', require('./routes/chatRoutes'));
 
 // Global Error Handler
 app.use((err, req, res, next) => {

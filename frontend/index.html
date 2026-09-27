@@ -4,17 +4,32 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <title>GeoPolicy Nexus | National Digital Platform for Land Governance | Ministry of Rural Development, Government of India</title>
+    <meta name="description" content="National Digital Platform for Research, Policy Innovation, and Evidence-Based Land Governance. Ministry of Rural Development & Department of Land Resources, Government of India." />
+    <!-- Google Fonts: Noto Sans & Noto Sans Devanagari for authentic GoI portal typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Noto+Serif:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+      /* Hide Google Translate top bar and widget UI — our custom dropdown drives it */
+      .goog-te-banner-frame, #goog-gt-tt, .goog-te-balloon-frame { display: none !important; }
+      body { top: 0 !important; }
+      .skiptranslate { display: none !important; }
+      .goog-text-highlight { background: none !important; box-shadow: none !important; }
+    </style>
   </head>
-  <body>
+  <body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-amber-100 selection:text-amber-900">
+    <!-- Hidden Google Translate Widget (programmatically driven by our language selector) -->
+    <div id="google_translate_element" style="display:none;position:absolute;top:-9999px;"></div>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <script type="text/javascript">
       function googleTranslateElementInit() {
         new google.translate.TranslateElement({
           pageLanguage: 'en', 
-          includedLanguages: 'en,hi,ta,te,kn,ml,mr,gu,bn,pa,or,as,ur',
-          layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+          includedLanguages: 'en,hi,ta,te,kn,ml,mr,gu,bn,pa,or,as',
+          layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+          autoDisplay: false
         }, 'google_translate_element');
       }
     </script>

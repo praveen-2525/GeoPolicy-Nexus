@@ -18,7 +18,7 @@ const datasetSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['Cadastral Maps', 'Land Use & Cover', 'Satellite Imagery', 'Soil Classification', 'Water Resources', 'Urban Density']
+    default: 'Cadastral Maps'
   },
   spatialCoverage: {
     type: String,

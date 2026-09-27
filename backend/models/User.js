@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['Admin', 'Researcher', 'Policymaker', 'Citizen', 'Institution', 'Platform Administrator'],
+    enum: ['Admin', 'Super Admin', 'Researcher', 'Policymaker', 'Citizen', 'Government Official'],
     default: 'Citizen'
   },
   organization: {
@@ -44,6 +44,12 @@ const userSchema = new mongoose.Schema({
   isApproved: {
     type: Boolean,
     default: true
+  },
+  otp: {
+    type: String
+  },
+  otpExpire: {
+    type: Date
   }
 }, {
   timestamps: true

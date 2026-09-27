@@ -1,51 +1,98 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans:wght@300;400;500;600;700&family=Source+Sans+3:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Noto+Serif:wght@600;700&display=swap');
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
 
 @theme {
-  --font-sans: 'Inter', 'Noto Sans', 'Source Sans 3', system-ui, sans-serif;
-  --font-mono: 'Noto Sans', 'Source Sans 3', sans-serif;
+  --font-sans: Arial, Helvetica, 'Noto Sans Devanagari', sans-serif;
+  --font-serif: 'Times New Roman', Times, 'Noto Serif', serif;
+  --font-mono: 'Courier New', Courier, monospace;
 }
 
 @layer base {
   :root {
-    --primary-navy: #0F172A;
-    --accent-emerald: #059669;
-    --gov-blue: #1E3A8A;
-    --gold-accent: #D97706;
+    --gov-navy: #0A3678;
+    --gov-navy-dark: #002244;
+    --gov-blue: #1E40AF;
+    --gov-saffron: #F58220;
+    --gov-saffron-dark: #C65D07;
+    --gov-green: #0D7E3A;
+    --gov-green-dark: #085426;
+    --chakra-blue: #000080;
+    --bg-surface: #FFFFFF;
+    --bg-muted: #F8FAFC;
+    --border-light: #E2E8F0;
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+  }
+
+  html {
+    font-family: Arial, Helvetica, 'Noto Sans Devanagari', sans-serif;
+    font-size: 14px;
+    scroll-behavior: smooth;
+    background-color: #F8FAFC;
+    color: #0F172A;
   }
 
   body {
-    background-color: #020617;
-    color: #F8FAFC;
-    font-family: 'Inter', 'Noto Sans', 'Source Sans 3', system-ui, sans-serif;
+    background-color: #F8FAFC;
+    color: #0F172A;
+    font-family: Arial, Helvetica, 'Noto Sans Devanagari', sans-serif;
+    font-size: 14px;
     margin: 0;
     padding: 0;
     min-height: 100vh;
   }
 }
 
-/* Custom Utilities & Animations */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+/* Government of India Official Styling Tokens - White Theme */
+.tricolor-stripe {
+  height: 4px;
+  background: linear-gradient(90deg, #F58220 0%, #F58220 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #0D7E3A 66.66%, #0D7E3A 100%);
+  width: 100%;
 }
 
-.dark-glass {
-  background: rgba(15, 23, 42, 0.88);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(51, 65, 85, 0.5);
+.chakra-spin-subtle {
+  animation: chakraRotate 60s linear infinite;
 }
 
-.gold-gradient-text {
-  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+@keyframes chakraRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-.navy-emerald-gradient {
-  background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #047857 100%);
+.gov-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 0.75rem;
+  color: #0F172A;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease-in-out;
+}
+
+.gov-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+}
+
+.gov-header-gradient {
+  background: linear-gradient(180deg, #0A3678 0%, #002244 100%);
+}
+
+.saffron-tag {
+  background-color: #FFF7ED;
+  color: #C65D07;
+  border: 1px solid #FFEDD5;
+}
+
+.green-tag {
+  background-color: #F0FDF4;
+  color: #0D7E3A;
+  border: 1px solid #DCFCE7;
+}
+
+.navy-tag {
+  background-color: #EFF6FF;
+  color: #0A3678;
+  border: 1px solid #DBEAFE;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -54,33 +101,70 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #090d16;
+  background: #F1F5F9;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #CBD5E1;
   border-radius: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #475569;
-}
-
-@keyframes pulseSlow {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.92; transform: scale(1.01); }
-}
-
-.pulse-glow {
-  animation: pulseSlow 4s infinite ease-in-out;
+  background: #94A3B8;
 }
 
 .leaflet-container {
-  background-color: #0b1329 !important;
-  border-radius: 1rem;
+  background-color: #E2E8F0 !important;
+  border-radius: 0.75rem;
+  font-family: 'Noto Sans', sans-serif !important;
 }
 
-/* Google Translate Widget Customizations for Dark Theme */
+/* Accessibility Font Resizing Classes */
+.text-size-sm {
+  font-size: 12px !important;
+}
+.text-size-lg {
+  font-size: 16.5px !important;
+}
+
+/* High Contrast & Standard Appearance Mode */
+body.high-contrast,
+.high-contrast {
+  background-color: #000000 !important;
+  color: #FFFF00 !important;
+}
+
+body.high-contrast *,
+.high-contrast .bg-white,
+.high-contrast .bg-slate-50,
+.high-contrast .bg-slate-100,
+.high-contrast .bg-slate-200 {
+  background-color: #050505 !important;
+  color: #FFFFFF !important;
+  border-color: #FFFF00 !important;
+}
+
+body.high-contrast .text-slate-900,
+body.high-contrast .text-slate-800,
+body.high-contrast .text-slate-700,
+body.high-contrast .text-slate-600,
+body.high-contrast .text-slate-500 {
+  color: #FFFFFF !important;
+}
+
+body.high-contrast button,
+body.high-contrast input,
+body.high-contrast select {
+  border-color: #FFFF00 !important;
+}
+
+body.high-contrast .bg-[#0A3678],
+body.high-contrast .bg-[#002244] {
+  background-color: #111111 !important;
+  border: 1px solid #FFFF00 !important;
+}
+
+/* Google Translate Widget GoI Styling */
 body {
   top: 0 !important;
 }
@@ -94,10 +178,10 @@ body {
 }
 .goog-te-gadget .goog-te-combo {
   margin: 0 !important;
-  padding: 2px 4px !important;
-  color: #CBD5E1 !important;
-  background-color: #1E293B !important;
-  border: 1px solid #334155 !important;
+  padding: 3px 6px !important;
+  color: #0F172A !important;
+  background-color: #FFFFFF !important;
+  border: 1px solid #CBD5E1 !important;
   border-radius: 4px !important;
   font-size: 11px !important;
   font-family: inherit !important;
@@ -106,4 +190,39 @@ body {
 }
 .goog-logo-link, .goog-te-gadget span {
   display: none !important;
+}
+
+/* Government Portal Hamburger Menu Button */
+.gov-hamburger-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.gov-hamburger-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.gov-hamburger-btn:hover::after {
+  opacity: 1;
+}
+
+/* Sidebar scroll styling */
+aside .custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E1 #F1F5F9;
+}
+
+/* Active nav item pulse animation */
+@keyframes navActivePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.nav-active-dot {
+  animation: navActivePulse 2s ease-in-out infinite;
 }

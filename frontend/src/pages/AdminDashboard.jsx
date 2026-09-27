@@ -14,31 +14,34 @@ import {
   Trash2, 
   Edit, 
   Search,
-  Globe
+  Globe,
+  ShieldCheck,
+  CheckCircle2,
+  AlertTriangle,
+  Activity,
+  Server,
+  UserCheck
 } from 'lucide-react';
 import axios from 'axios';
 
-// Initial preloaded users list for admin testing
 const INITIAL_USERS = [
-  { _id: 'usr_admin_01', name: 'Dr. Rajesh Sharma', email: 'admin@geopolicy.gov.in', role: 'Admin', organization: 'Ministry of Land Resources', state: 'National' },
-  { _id: 'usr_researcher_02', name: 'Praveen', email: 'praveen@geopolicy.gov.in', role: 'Platform Administrator', organization: 'National Institute of Urban Affairs', state: 'Maharashtra' },
-  { _id: 'usr_policy_03', name: 'Vikramaditya Rao', email: 'policy@geopolicy.gov.in', role: 'Policymaker', organization: 'State Land Policy Board', state: 'Karnataka' },
-  { _id: 'usr_citizen_04', name: 'Sunita Deshmukh', email: 'citizen@geopolicy.gov.in', role: 'Citizen', organization: 'Civil Rights & Land Owner', state: 'Gujarat' },
-  { _id: 'usr_inst_05', name: 'GeoSpatial Innovation Lab', email: 'institution@geopolicy.gov.in', role: 'Institution', organization: 'Indian Council of Social Science Research', state: 'Delhi' }
+  { _id: 'usr_admin_01', name: 'Praveen', email: 'praveen@geopolicy.gov.in', role: 'Super Admin', organization: 'Ministry of Rural Development & DoLR', state: 'National' },
+  { _id: 'usr_researcher_02', name: 'Dr. Aruna Swaminathan', email: 'aruna.swaminathan@iitd.ac.in', role: 'Researcher', organization: 'IIT Delhi', state: 'Delhi' },
+  { _id: 'usr_policy_03', name: 'Vikramaditya Rao', email: 'v.rao@karnataka.gov.in', role: 'Policymaker', organization: 'State Land Policy Board', state: 'Karnataka' },
+  { _id: 'usr_official_04', name: 'Rajesh Kumar Verma, IAS', email: 'rajesh.verma@nic.in', role: 'Government Official', organization: 'Department of Land Resources', state: 'National' },
+  { _id: 'usr_citizen_05', name: 'Sunita Deshmukh', email: 'sunita.deshmukh@gmail.com', role: 'Citizen', organization: 'Gujarat Kisan Parishad', state: 'Gujarat' }
 ];
 
 export const AdminDashboard = () => {
   const { user } = useContext(AuthContext);
-  const [activeTab, setActiveTab] = useState('hierarchy');
+  const [activeTab, setActiveTab] = useState('users'); // 'users' | 'hierarchy' | 'moderation' | 'health'
   const [usersList, setUsersList] = useState(INITIAL_USERS);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Modals state
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
-    // Attempt fetching live users from backend API
     axios.get('/api/users')
       .then(res => {
         if (res.data && res.data.length > 0) {
@@ -63,7 +66,7 @@ export const AdminDashboard = () => {
   };
 
   const handleDeleteUser = (id) => {
-    if (window.confirm('Are you sure you want to remove this user from the platform?')) {
+    if (window.confirm('Are you sure you want to revoke this user account?')) {
       setUsersList(usersList.filter(u => u._id !== id));
       axios.delete(`/api/users/${id}`).catch(() => {});
     }
@@ -77,100 +80,79 @@ export const AdminDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-4 sm:p-6 lg:p-8 space-y-8 font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-900 p-4 sm:p-6 lg:p-8 space-y-6 font-sans">
       
-      {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+      {/* Super Admin Top Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
         <div>
-          <div className="flex items-center gap-2 text-purple-400 font-mono text-xs font-bold uppercase tracking-wider mb-1">
+          <div className="flex items-center gap-2 text-purple-700 font-mono text-xs font-bold uppercase tracking-wider mb-1">
             <ShieldAlert className="w-4 h-4" />
-            <span>National Platform Governance &amp; Administration</span>
+            <span>National Super Administrator Console &bull; Praveen</span>
           </div>
-          <h1 className="text-3xl font-extrabold text-white">Admin Management Console</h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Manage Indian administrative boundaries, user roles, gazette policies, research approvals, and spatial datasets.
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#002244]">
+            Super Admin Platform Management
+          </h1>
+          <p className="text-xs text-slate-500 mt-1">
+            Full platform administration, user access management, dataset moderation, and national spatial infrastructure control.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-400 font-mono">Logged in as Admin:</span>
-          <RoleBadge role={user?.role || 'Admin'} />
+          <span className="px-3 py-1 bg-purple-100 text-purple-900 border border-purple-300 rounded-lg text-xs font-bold font-mono flex items-center gap-1.5">
+            <UserCheck className="w-3.5 h-3.5" />
+            <span>Super Admin: Praveen</span>
+          </span>
         </div>
       </div>
 
-      {/* Tabs Row */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 pb-4">
-        <button
-          onClick={() => setActiveTab('hierarchy')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-            activeTab === 'hierarchy' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-950/60' : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
-          }`}
-        >
-          <Globe className="w-4 h-4" />
-          <span>India Administrative Hierarchy</span>
-        </button>
-
+      {/* Admin Tabs */}
+      <div className="bg-white p-2 rounded-xl border border-slate-200 shadow-xs flex flex-wrap gap-2 text-xs">
         <button
           onClick={() => setActiveTab('users')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-            activeTab === 'users' ? 'bg-purple-600 text-white shadow-lg' : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
+          className={`px-3.5 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+            activeTab === 'users' ? 'bg-[#0A3678] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          <Users className="w-4 h-4" />
-          <span>User Management ({usersList.length})</span>
+          User Management ({usersList.length})
         </button>
-
         <button
-          onClick={() => setActiveTab('research')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-            activeTab === 'research' ? 'bg-emerald-600 text-white shadow-lg' : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
+          onClick={() => setActiveTab('hierarchy')}
+          className={`px-3.5 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+            activeTab === 'hierarchy' ? 'bg-[#0A3678] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          <BookOpen className="w-4 h-4 text-emerald-400" />
-          <span>Research Management</span>
+          Administrative Boundaries &amp; LGD Hierarchy
         </button>
-
         <button
-          onClick={() => setActiveTab('policies')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-            activeTab === 'policies' ? 'bg-amber-600 text-white shadow-lg' : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
+          onClick={() => setActiveTab('moderation')}
+          className={`px-3.5 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+            activeTab === 'moderation' ? 'bg-[#0A3678] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          <FileText className="w-4 h-4 text-amber-400" />
-          <span>Policy Management</span>
+          Dataset Moderation &amp; Approval
         </button>
-
         <button
-          onClick={() => setActiveTab('datasets')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-            activeTab === 'datasets' ? 'bg-blue-600 text-white shadow-lg' : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
+          onClick={() => setActiveTab('health')}
+          className={`px-3.5 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+            activeTab === 'health' ? 'bg-[#0A3678] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          <Database className="w-4 h-4 text-blue-400" />
-          <span>Dataset Management</span>
+          System Health &amp; Analytics Overview
         </button>
       </div>
-
-      {/* TAB 0: INDIA ADMINISTRATIVE HIERARCHY MODULE */}
-      {activeTab === 'hierarchy' && (
-        <div className="space-y-8">
-          <AdminHierarchySelector />
-          <AdminBoundaryManager />
-        </div>
-      )}
 
       {/* TAB 1: USER MANAGEMENT */}
       {activeTab === 'users' && (
-        <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="relative w-full sm:w-80">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search users by name, email, role..."
-                className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500"
+                placeholder="Search registered delegates by name, email, role..."
+                className="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-blue-600"
               />
             </div>
 
@@ -179,103 +161,181 @@ export const AdminDashboard = () => {
                 setSelectedUser(null);
                 setIsUserModalOpen(true);
               }}
-              className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-purple-950/50 w-full sm:w-auto justify-center cursor-pointer"
+              className="px-4 py-2 bg-[#0A3678] hover:bg-[#002244] text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer w-full sm:w-auto justify-center"
             >
               <PlusCircle className="w-4 h-4" />
-              <span>Create User Account</span>
+              <span>Enroll New User</span>
             </button>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-300">
-                <thead className="bg-slate-950 text-slate-400 font-mono text-[11px] uppercase border-b border-slate-800">
-                  <tr>
-                    <th className="p-4">User Name</th>
-                    <th className="p-4">Email</th>
-                    <th className="p-4">Role</th>
-                    <th className="p-4">Organization</th>
-                    <th className="p-4">Jurisdiction</th>
-                    <th className="p-4 text-right">Actions</th>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-slate-200 text-slate-500 font-mono text-[11px]">
+                  <th className="py-2.5 px-3">Full Legal Name</th>
+                  <th className="py-2.5 px-3">Official Email</th>
+                  <th className="py-2.5 px-3">Platform Role</th>
+                  <th className="py-2.5 px-3">Organization / Department</th>
+                  <th className="py-2.5 px-3">State Jurisdiction</th>
+                  <th className="py-2.5 px-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {filteredUsers.map((u) => (
+                  <tr key={u._id} className="hover:bg-slate-50 transition-colors">
+                    <td className="py-3 px-3 font-bold text-slate-900">{u.name}</td>
+                    <td className="py-3 px-3 font-mono text-slate-500">{u.email}</td>
+                    <td className="py-3 px-3">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                        u.role === 'Super Admin' ? 'bg-purple-100 text-purple-800 border border-purple-200' :
+                        u.role === 'Researcher' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+                        u.role === 'Policymaker' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
+                        u.role === 'Government Official' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
+                        'bg-slate-100 text-slate-700 border border-slate-200'
+                      }`}>
+                        {u.role}
+                      </span>
+                    </td>
+                    <td className="py-3 px-3 text-slate-700">{u.organization}</td>
+                    <td className="py-3 px-3 text-slate-600 font-medium">{u.state}</td>
+                    <td className="py-3 px-3 text-right space-x-1">
+                      <button
+                        onClick={() => {
+                          setSelectedUser(u);
+                          setIsUserModalOpen(true);
+                        }}
+                        className="p-1.5 bg-slate-100 hover:bg-slate-200 text-[#0A3678] rounded cursor-pointer"
+                        title="Edit User"
+                      >
+                        <Edit className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteUser(u._id)}
+                        className="p-1.5 bg-slate-100 hover:bg-red-50 text-red-600 rounded cursor-pointer"
+                        title="Delete User"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/80">
-                  {filteredUsers.map((u) => (
-                    <tr key={u._id} className="hover:bg-slate-800/50 transition-colors">
-                      <td className="p-4 font-bold text-white flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center font-bold text-purple-400">
-                          {u.name?.charAt(0)}
-                        </div>
-                        <span>{u.name}</span>
-                      </td>
-                      <td className="p-4 font-mono text-slate-400">{u.email}</td>
-                      <td className="p-4">
-                        <RoleBadge role={u.role} size="small" />
-                      </td>
-                      <td className="p-4 text-slate-300">{u.organization}</td>
-                      <td className="p-4 text-slate-400">{u.state}</td>
-                      <td className="p-4 text-right space-x-2">
-                        <button
-                          onClick={() => {
-                            setSelectedUser(u);
-                            setIsUserModalOpen(true);
-                          }}
-                          className="p-1.5 bg-slate-800 hover:bg-slate-700 text-purple-400 rounded-lg cursor-pointer"
-                        >
-                          <Edit className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteUser(u._id)}
-                          className="p-1.5 bg-slate-800 hover:bg-rose-950 text-rose-400 rounded-lg cursor-pointer"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 2: ADMINISTRATIVE HIERARCHY */}
+      {activeTab === 'hierarchy' && (
+        <div className="space-y-6">
+          <AdminHierarchySelector />
+          <AdminBoundaryManager />
+        </div>
+      )}
+
+      {/* TAB 3: DATASET MODERATION */}
+      {activeTab === 'moderation' && (
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
+          <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900">Spatial Dataset &amp; Publication Approval Queue</h3>
+              <p className="text-xs text-slate-500">Review pending cadastral submissions before national publication.</p>
+            </div>
+            <span className="text-xs font-mono bg-amber-50 text-amber-800 px-2 py-1 rounded font-bold border border-amber-200">
+              2 Submissions Pending
+            </span>
+          </div>
+
+          <div className="space-y-3 text-xs">
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-[#0A3678]">
+                    Spatial Vector Layer
+                  </span>
+                  <span className="font-bold text-slate-900">
+                    Pune Peri-Urban Land Pooling Vector (GeoJSON)
+                  </span>
+                </div>
+                <p className="text-slate-600">Submitted by: IIT Delhi Geomatics Lab &bull; 14-Digit ULPIN Verified</p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => alert('[Approved]: Dataset published to Open Data Repository under OGDL License.')}
+                  className="px-3 py-1.5 bg-[#0D7E3A] hover:bg-[#085426] text-white rounded-lg font-bold shadow-xs cursor-pointer"
+                >
+                  Approve &amp; Publish
+                </button>
+                <button
+                  onClick={() => alert('[Revision Requested]: Editorial comments dispatched to submitting author.')}
+                  className="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-bold cursor-pointer"
+                >
+                  Request Revision
+                </button>
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">
+                    Policy Gazette Draft
+                  </span>
+                  <span className="font-bold text-slate-900">
+                    Tamil Nadu Coastal CRZ Tenurial Rights Regulation 2026
+                  </span>
+                </div>
+                <p className="text-slate-600">Submitted by: State Land Policy Board &bull; Awaiting Legal Verification</p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => alert('[Approved]: Policy published to official State Gazette Registry.')}
+                  className="px-3 py-1.5 bg-[#0D7E3A] hover:bg-[#085426] text-white rounded-lg font-bold shadow-xs cursor-pointer"
+                >
+                  Approve &amp; Publish
+                </button>
+                <button
+                  onClick={() => alert('[Revision Requested]: Legal revision guidelines dispatched.')}
+                  className="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-bold cursor-pointer"
+                >
+                  Request Revision
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* TAB 2, 3, 4 Overview place-holders for instant audit */}
-      {activeTab === 'research' && (
-        <div className="p-8 bg-slate-900 border border-slate-800 rounded-2xl space-y-4">
-          <h3 className="font-bold text-white text-lg flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-emerald-400" />
-            <span>Research Paper Catalog Control</span>
-          </h3>
-          <p className="text-xs text-slate-400">Manage peer-review approvals, DOI assignments, and citation indexing across all 4 indexed research papers.</p>
-          <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 text-xs text-emerald-400 font-mono">
-            Status: All research papers active and verified against National Spatial Standards.
+      {/* TAB 4: SYSTEM HEALTH */}
+      {activeTab === 'health' && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="p-5 bg-white rounded-xl border border-slate-200 shadow-xs space-y-2">
+            <div className="flex items-center justify-between text-xs text-slate-500">
+              <span className="font-bold uppercase font-mono">MongoDB Status</span>
+              <Database className="w-4 h-4 text-emerald-600" />
+            </div>
+            <div className="text-2xl font-extrabold text-emerald-700 font-mono">ONLINE / CONNECTED</div>
+            <p className="text-xs text-slate-500">Port 27017 &bull; geopolicy_nexus database healthy</p>
           </div>
-        </div>
-      )}
 
-      {activeTab === 'policies' && (
-        <div className="p-8 bg-slate-900 border border-slate-800 rounded-2xl space-y-4">
-          <h3 className="font-bold text-white text-lg flex items-center gap-2">
-            <FileText className="w-5 h-5 text-amber-400" />
-            <span>State Policy Gazette Administration</span>
-          </h3>
-          <p className="text-xs text-slate-400">Regulate state legislative submissions, digital land titling mandates, and urban zoning directives.</p>
-          <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 text-xs text-amber-400 font-mono">
-            Status: 4 Active State &amp; National Gazette policies currently published.
+          <div className="p-5 bg-white rounded-xl border border-slate-200 shadow-xs space-y-2">
+            <div className="flex items-center justify-between text-xs text-slate-500">
+              <span className="font-bold uppercase font-mono">Backend API Server</span>
+              <Server className="w-4 h-4 text-[#0A3678]" />
+            </div>
+            <div className="text-2xl font-extrabold text-[#0A3678] font-mono">PORT 5000 ACTIVE</div>
+            <p className="text-xs text-slate-500">Nodemon hot-reload &bull; 0 uncaught exceptions</p>
           </div>
-        </div>
-      )}
 
-      {activeTab === 'datasets' && (
-        <div className="p-8 bg-slate-900 border border-slate-800 rounded-2xl space-y-4">
-          <h3 className="font-bold text-white text-lg flex items-center gap-2">
-            <Database className="w-5 h-5 text-blue-400" />
-            <span>Geospatial Layer Registry</span>
-          </h3>
-          <p className="text-xs text-slate-400">Regulate spatial vector and raster layer access, OGDL licenses, and download throughput.</p>
-          <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 text-xs text-blue-400 font-mono">
-            Status: Open Government Data License (OGDL) compliance active.
+          <div className="p-5 bg-white rounded-xl border border-slate-200 shadow-xs space-y-2">
+            <div className="flex items-center justify-between text-xs text-slate-500">
+              <span className="font-bold uppercase font-mono">System Uptime</span>
+              <Activity className="w-4 h-4 text-purple-600" />
+            </div>
+            <div className="text-2xl font-extrabold text-purple-800 font-mono">99.98%</div>
+            <p className="text-xs text-slate-500">National Sovereign Cloud Tier-4 Certified</p>
           </div>
         </div>
       )}
