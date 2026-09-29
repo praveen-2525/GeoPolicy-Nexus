@@ -18,7 +18,7 @@ import {
   MapPin,
   ShieldCheck
 } from 'lucide-react';
-import axios from 'axios';
+import apiClient, { ENDPOINTS } from '../api/config';
 
 const FORMATS = ['All', 'GeoJSON', 'Shapefile', 'GeoTIFF', 'CSV', 'KML', 'Raster'];
 
@@ -339,7 +339,7 @@ export const DatasetRepository = ({ isAddModalOpen, setIsAddModalOpen }) => {
     try {
       setLoading(true);
       setError('');
-      const res = await axios.get('/api/datasets');
+      const res = await apiClient.get(ENDPOINTS.DATASETS);
       if (res.data && res.data.length >= 5) {
         // Merge DB data with static data to guarantee at least 25 rich datasets
         const combined = [...res.data];
@@ -367,7 +367,7 @@ export const DatasetRepository = ({ isAddModalOpen, setIsAddModalOpen }) => {
   const handleCreateDataset = async (formData) => {
     try {
       setError('');
-      const res = await axios.post('/api/datasets', formData);
+      const res = await apiClient.post(ENDPOINTS.DATASETS, formData);
       setDatasets([res.data, ...datasets]);
       setIsAddModalOpen(false);
     } catch (err) {
@@ -430,7 +430,7 @@ export const DatasetRepository = ({ isAddModalOpen, setIsAddModalOpen }) => {
     }
 
     try {
-      await axios.post(`/api/datasets/${datasetId}/download`);
+      await apiClient.post(`${ENDPOINTS.DATASETS}/${datasetId}/download`);
     } catch (e) {
       console.warn('Error recording download count in MongoDB', e);
     }

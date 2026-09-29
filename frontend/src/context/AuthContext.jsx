@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import apiClient, { ENDPOINTS } from '../api/config';
 
 export const AuthContext = createContext();
 
@@ -147,7 +148,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     setAuthError(null);
     try {
-      const response = await axios.post('/api/auth/login', { email, password });
+      const response = await apiClient.post(ENDPOINTS.LOGIN, { email, password });
       const userData = response.data;
       setUser(userData);
       localStorage.setItem('geopolicy_gov_user', JSON.stringify(userData));
@@ -189,7 +190,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (formData) => {
     setAuthError(null);
     try {
-      const response = await axios.post('/api/auth/register', formData);
+      const response = await apiClient.post(ENDPOINTS.REGISTER, formData);
       const userData = response.data;
       setUser(userData);
       localStorage.setItem('geopolicy_gov_user', JSON.stringify(userData));
@@ -217,7 +218,7 @@ export const AuthProvider = ({ children }) => {
 
   const generateOtp = async (email) => {
     try {
-      const res = await axios.post('/api/auth/generate-otp', { email });
+      const res = await apiClient.post(ENDPOINTS.GENERATE_OTP, { email });
       return res.data;
     } catch (err) {
       console.warn('Backend OTP fallback', err);
@@ -227,8 +228,8 @@ export const AuthProvider = ({ children }) => {
 
   const verifyOtp = async (email, otp) => {
     try {
-      const res = await axios.post('/api/auth/verify-otp', { email, otp });
-      const userData = await login(email, 'password123'); // Assuming standard mock password for now or we update login flow
+      const res = await apiClient.post(ENDPOINTS.VERIFY_OTP, { email, otp });
+      const userData = await login(email, 'password123'); // Assuming standard mock password
       return userData;
     } catch (err) {
       if (otp === '123456') {

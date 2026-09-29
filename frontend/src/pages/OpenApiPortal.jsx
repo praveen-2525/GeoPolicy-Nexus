@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import apiClient, { API_BASE_URL } from '../api/config';
 import { 
   Code, 
   KeyRound, 
@@ -110,14 +111,15 @@ export const OpenApiPortal = () => {
   };
 
   const getCodeSnippet = () => {
+    const baseUrl = API_BASE_URL || 'https://geopolicy-nexus-backend.onrender.com';
     if (codeLanguage === 'curl') {
-      return `curl -X ${activeEndpoint.method} "https://geopolicy.gov.in${activeEndpoint.path}?state_code=ST27" \\
+      return `curl -X ${activeEndpoint.method} "${baseUrl}${activeEndpoint.path}?state_code=ST27" \\
   -H "Authorization: Bearer ${apiKey}" \\
   -H "Accept: application/json"`;
     } else if (codeLanguage === 'python') {
       return `import requests
 
-url = "https://geopolicy.gov.in${activeEndpoint.path}"
+url = "${baseUrl}${activeEndpoint.path}"
 headers = {
     "Authorization": "Bearer ${apiKey}",
     "Accept": "application/json"
@@ -131,7 +133,7 @@ print("Total records:", len(data))`;
       return `import axios from 'axios';
 
 const fetchGeoPolicyData = async () => {
-  const response = await axios.get('https://geopolicy.gov.in${activeEndpoint.path}', {
+  const response = await axios.get('${baseUrl}${activeEndpoint.path}', {
     headers: {
       'Authorization': 'Bearer ${apiKey}',
       'Accept': 'application/json'

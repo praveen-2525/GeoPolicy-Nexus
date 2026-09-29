@@ -22,7 +22,7 @@ import {
   Server,
   UserCheck
 } from 'lucide-react';
-import axios from 'axios';
+import apiClient, { ENDPOINTS, API_BASE_URL } from '../api/config';
 
 const INITIAL_USERS = [
   { _id: 'usr_admin_01', name: 'Praveen', email: 'praveen@geopolicy.gov.in', role: 'Super Admin', organization: 'Ministry of Rural Development & DoLR', state: 'National' },
@@ -42,7 +42,7 @@ export const AdminDashboard = () => {
   const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
-    axios.get('/api/users')
+    apiClient.get(ENDPOINTS.USERS)
       .then(res => {
         if (res.data && res.data.length > 0) {
           setUsersList(res.data);
@@ -68,7 +68,7 @@ export const AdminDashboard = () => {
   const handleDeleteUser = (id) => {
     if (window.confirm('Are you sure you want to revoke this user account?')) {
       setUsersList(usersList.filter(u => u._id !== id));
-      axios.delete(`/api/users/${id}`).catch(() => {});
+      apiClient.delete(`${ENDPOINTS.USERS}/${id}`).catch(() => {});
     }
   };
 
@@ -325,8 +325,8 @@ export const AdminDashboard = () => {
               <span className="font-bold uppercase font-mono">Backend API Server</span>
               <Server className="w-4 h-4 text-[#0A3678]" />
             </div>
-            <div className="text-2xl font-extrabold text-[#0A3678] font-mono">PORT 5000 ACTIVE</div>
-            <p className="text-xs text-slate-500">Nodemon hot-reload &bull; 0 uncaught exceptions</p>
+            <div className="text-xl font-extrabold text-[#0A3678] font-mono uppercase tracking-tight">RENDER API ACTIVE</div>
+            <p className="text-xs text-slate-500 truncate" title={API_BASE_URL}>{API_BASE_URL} &bull; Deployed</p>
           </div>
 
           <div className="p-5 bg-white rounded-xl border border-slate-200 shadow-xs space-y-2">

@@ -23,7 +23,7 @@ import {
   SlidersHorizontal,
   RotateCcw
 } from 'lucide-react';
-import axios from 'axios';
+import apiClient, { ENDPOINTS } from '../api/config';
 
 const TOPICS = ['All', 'Land Governance', 'GIS & Remote Sensing', 'Urban Planning', 'Agricultural Policy', 'Climate Resilience', 'Property Rights'];
 const STATES = ['All States', 'Maharashtra', 'Karnataka', 'Gujarat', 'Tamil Nadu', 'Delhi', 'Telangana', 'Uttar Pradesh'];
@@ -368,7 +368,7 @@ export const ResearchRepository = ({ isAddModalOpen, setIsAddModalOpen }) => {
     try {
       setLoading(true);
       setError('');
-      const res = await axios.get('/api/research');
+      const res = await apiClient.get(ENDPOINTS.RESEARCH);
       if (Array.isArray(res.data) && res.data.length > 0) {
         setPapers(res.data);
       } else {
@@ -395,7 +395,7 @@ export const ResearchRepository = ({ isAddModalOpen, setIsAddModalOpen }) => {
   const handleCreatePaper = async (formData) => {
     try {
       setError('');
-      const res = await axios.post('/api/research', formData);
+      const res = await apiClient.post(ENDPOINTS.RESEARCH, formData);
       setPapers([res.data, ...papers]);
       setIsAddModalOpen(false);
     } catch (err) {

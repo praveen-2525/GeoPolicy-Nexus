@@ -17,7 +17,7 @@ import {
   CheckCircle2,
   AlertCircle
 } from 'lucide-react';
-import axios from 'axios';
+import apiClient, { ENDPOINTS } from '../api/config';
 
 export const HomeChatbotWidget = ({ onClose }) => {
   const [messages, setMessages] = useState([
@@ -64,7 +64,7 @@ I am trained on national land governance databases, state revenue acts, ULPIN (B
     setLoading(true);
 
     try {
-      const response = await axios.post('/api/chat', {
+      const response = await apiClient.post(ENDPOINTS.CHAT, {
         message: query.trim(),
         history: messages.slice(-6),
         language: 'English',

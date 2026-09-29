@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Globe, Layers, Search, CheckCircle, Navigation, Loader2 } from 'lucide-react';
-import axios from 'axios';
+import apiClient, { ENDPOINTS } from '../api/config';
 
 export const AdminHierarchySelector = () => {
   const [states, setStates] = useState([]);
@@ -24,7 +24,7 @@ export const AdminHierarchySelector = () => {
   // 1. Fetch States on mount
   useEffect(() => {
     setLoadingStates(true);
-    axios.get('/api/boundaries/states')
+    apiClient.get(ENDPOINTS.BOUNDARIES_STATES)
       .then(res => {
         setStates(res.data || []);
       })
@@ -53,7 +53,7 @@ export const AdminHierarchySelector = () => {
     setLoadingDistricts(true);
     const codeToPass = stObj ? stObj.stateCode : selectedState;
 
-    axios.get(`/api/boundaries/districts/${codeToPass}`)
+    apiClient.get(`${ENDPOINTS.BOUNDARIES_DISTRICTS}/${codeToPass}`)
       .then(res => {
         setDistricts(res.data || []);
         setSelectedDistrict('');
@@ -84,7 +84,7 @@ export const AdminHierarchySelector = () => {
     const dtCode = dtObj ? dtObj.districtCode : selectedDistrict;
 
     setLoadingSubDistricts(true);
-    axios.get(`/api/boundaries/subdistricts/${dtCode}`)
+    apiClient.get(`${ENDPOINTS.BOUNDARIES_SUBDISTRICTS}/${dtCode}`)
       .then(res => {
         setSubDistricts(res.data || []);
       })
@@ -92,7 +92,7 @@ export const AdminHierarchySelector = () => {
       .finally(() => setLoadingSubDistricts(false));
 
     setLoadingVillages(true);
-    axios.get(`/api/boundaries/villages-by-district/${dtCode}`)
+    apiClient.get(`${ENDPOINTS.BOUNDARIES_VILLAGES_BY_DISTRICT}/${dtCode}`)
       .then(res => {
         setVillages(res.data || []);
       })
@@ -113,7 +113,7 @@ export const AdminHierarchySelector = () => {
     const sdCode = sdObj ? sdObj.subDistrictCode : selectedSubDistrict;
 
     setLoadingVillages(true);
-    axios.get(`/api/boundaries/villages/${sdCode}`)
+    apiClient.get(`${ENDPOINTS.BOUNDARIES_VILLAGES}/${sdCode}`)
       .then(res => {
         if (res.data && res.data.length > 0) {
           setVillages(res.data);

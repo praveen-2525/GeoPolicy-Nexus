@@ -21,7 +21,7 @@ import {
   Building,
   UserCheck
 } from 'lucide-react';
-import axios from 'axios';
+import apiClient, { ENDPOINTS } from '../api/config';
 
 export const Dashboard = ({ setCurrentPage, onOpenModal }) => {
   const { user } = useContext(AuthContext);
@@ -93,9 +93,9 @@ export const Dashboard = ({ setCurrentPage, onOpenModal }) => {
   const fetchDashboardData = async () => {
     try {
       const [papersRes, policiesRes, datasetsRes] = await Promise.allSettled([
-        axios.get('/api/research'),
-        axios.get('/api/policies'),
-        axios.get('/api/datasets')
+        apiClient.get(ENDPOINTS.RESEARCH),
+        apiClient.get(ENDPOINTS.POLICIES),
+        apiClient.get(ENDPOINTS.DATASETS)
       ]);
 
       const papersData = papersRes.status === 'fulfilled' ? papersRes.value.data : [];

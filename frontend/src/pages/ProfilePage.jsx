@@ -17,7 +17,7 @@ import {
   Lock,
   UserCheck
 } from 'lucide-react';
-import axios from 'axios';
+import apiClient, { ENDPOINTS } from '../api/config';
 
 export const ProfilePage = ({ setCurrentPage }) => {
   const { user, updateProfile, switchDemoRole, DEMO_ACCOUNTS } = useContext(AuthContext);
@@ -60,7 +60,7 @@ export const ProfilePage = ({ setCurrentPage }) => {
     setTimeout(() => setSaveSuccess(false), 3000);
 
     try {
-      await axios.put('/api/auth/profile', formData);
+      await apiClient.put(ENDPOINTS.PROFILE, formData);
     } catch (err) {
       // Local fallback handled in context
     }

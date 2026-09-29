@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { PlusCircle, Save, Globe, MapPin, Database, CheckCircle, AlertCircle } from 'lucide-react';
-import axios from 'axios';
+import apiClient, { ENDPOINTS } from '../api/config';
 
 export const AdminBoundaryManager = ({ onUnitCreated }) => {
   const [unitType, setUnitType] = useState('State');
@@ -53,14 +53,14 @@ export const AdminBoundaryManager = ({ onUnitCreated }) => {
     };
 
     if (unitType === 'State') {
-      endpoint = '/api/boundaries/states';
+      endpoint = ENDPOINTS.BOUNDARIES_STATES;
       payload = {
         ...payload,
         stateName: formData.stateName,
         stateCode: formData.stateCode || `ST${Math.floor(10 + Math.random() * 89)}`
       };
     } else if (unitType === 'District') {
-      endpoint = '/api/boundaries/districts';
+      endpoint = ENDPOINTS.BOUNDARIES_DISTRICTS;
       payload = {
         ...payload,
         districtName: formData.districtName,
@@ -69,7 +69,7 @@ export const AdminBoundaryManager = ({ onUnitCreated }) => {
         stateName: formData.stateName || 'Maharashtra'
       };
     } else if (unitType === 'Taluk') {
-      endpoint = '/api/boundaries/subdistricts';
+      endpoint = ENDPOINTS.BOUNDARIES_SUBDISTRICTS;
       payload = {
         ...payload,
         subDistrictName: formData.subDistrictName,
@@ -80,7 +80,7 @@ export const AdminBoundaryManager = ({ onUnitCreated }) => {
         stateName: formData.stateName || 'Maharashtra'
       };
     } else if (unitType === 'Village') {
-      endpoint = '/api/boundaries/villages';
+      endpoint = ENDPOINTS.BOUNDARIES_VILLAGES;
       payload = {
         ...payload,
         villageName: formData.villageName,
@@ -94,7 +94,7 @@ export const AdminBoundaryManager = ({ onUnitCreated }) => {
         stateName: formData.stateName || 'Maharashtra'
       };
     } else if (unitType === 'City') {
-      endpoint = '/api/boundaries/cities';
+      endpoint = ENDPOINTS.BOUNDARIES_CITIES;
       payload = {
         ...payload,
         cityName: formData.cityName,
@@ -107,7 +107,7 @@ export const AdminBoundaryManager = ({ onUnitCreated }) => {
     }
 
     try {
-      const res = await axios.post(endpoint, payload);
+      const res = await apiClient.post(endpoint, payload);
       setMessage(`Successfully created ${unitType} administrative boundary entity in MongoDB!`);
       if (onUnitCreated) onUnitCreated(res.data);
     } catch (err) {

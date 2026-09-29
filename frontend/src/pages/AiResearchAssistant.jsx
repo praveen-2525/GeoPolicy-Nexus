@@ -38,7 +38,7 @@ import {
   RotateCcw,
   ArrowRight
 } from 'lucide-react';
-import axios from 'axios';
+import apiClient, { ENDPOINTS } from '../api/config';
 
 // Land Governance Knowledge Mode Topics & Sample Prompts
 const DOMAIN_TOPICS = [
@@ -298,7 +298,7 @@ Select a quick topic below or type your question in any Indian language to begin
 
     try {
       // Direct requirement call: POST /api/chat
-      const res = await axios.post('/api/chat', {
+      const res = await apiClient.post(ENDPOINTS.CHAT, {
         message: text.trim(),
         history: historyPayload,
         language: selectedLanguage,

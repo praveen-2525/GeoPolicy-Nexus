@@ -25,7 +25,7 @@ import {
   CheckCircle2,
   Clock
 } from 'lucide-react';
-import axios from 'axios';
+import apiClient, { ENDPOINTS } from '../api/config';
 
 const SIMULATION_CATEGORIES = [
   {
@@ -130,7 +130,7 @@ export const PolicyImpactSimulator = () => {
 
     setSimulating(true);
     try {
-      const res = await axios.post('/api/policies/simulate', {
+      const res = await apiClient.post(ENDPOINTS.POLICY_SIMULATE, {
         state: targetState || state,
         district: targetDistrict || district,
         category: catName || selectedCategory.name,

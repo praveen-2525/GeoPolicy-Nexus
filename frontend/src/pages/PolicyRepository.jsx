@@ -15,7 +15,7 @@ import {
   X,
   Cpu
 } from 'lucide-react';
-import axios from 'axios';
+import apiClient, { ENDPOINTS } from '../api/config';
 
 const STATES = ['All', 'National', 'Karnataka', 'Tamil Nadu', 'Kerala', 'Andhra Pradesh', 'Telangana', 'Maharashtra', 'Gujarat', 'Delhi', 'Uttar Pradesh'];
 
@@ -847,7 +847,7 @@ export const PolicyRepository = ({ isAddModalOpen, setIsAddModalOpen, setCurrent
     try {
       setLoading(true);
       setError('');
-      const res = await axios.get('/api/policies');
+      const res = await apiClient.get(ENDPOINTS.POLICIES);
       setDbPolicies(res.data);
     } catch (err) {
       // Not an error — use static data as primary
@@ -868,7 +868,7 @@ export const PolicyRepository = ({ isAddModalOpen, setIsAddModalOpen, setCurrent
   const handleCreatePolicy = async (formData) => {
     try {
       setError('');
-      const res = await axios.post('/api/policies', formData);
+      const res = await apiClient.post(ENDPOINTS.POLICIES, formData);
       setDbPolicies([res.data, ...dbPolicies]);
       setIsAddModalOpen(false);
     } catch (err) {
