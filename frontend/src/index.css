@@ -113,10 +113,24 @@
   background: #94A3B8;
 }
 
+/* Leaflet Map Isolation & Containment - Guarantees maps never overlap onto navbar, tabs, popovers or modals */
 .leaflet-container {
   background-color: #E2E8F0 !important;
   border-radius: 0.75rem;
   font-family: 'Noto Sans', sans-serif !important;
+  z-index: 1 !important;
+  isolation: isolate !important;
+  position: relative !important;
+}
+
+.leaflet-pane {
+  z-index: 10 !important;
+}
+
+.leaflet-top,
+.leaflet-bottom,
+.leaflet-control-container {
+  z-index: 20 !important;
 }
 
 /* Accessibility Font Resizing Classes */

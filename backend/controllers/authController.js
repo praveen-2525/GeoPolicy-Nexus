@@ -14,25 +14,54 @@ const generateToken = (id) => {
 // @access  Public
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password, role, organization, state, bio } = req.body;
+    const { name, email, password, role, organization, state, bio, designation } = req.body;
+    console.log('[Backend AuthController] POST /api/auth/register Request Payload:', {
+      name,
+      email,
+      role,
+      designation,
+      organization,
+      state
+    });
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'Please provide all required fields: Full Name, Email, and Password.' });
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({ message: 'Password must contain at least 8 characters.' });
+    }
 
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return res.status(400).json({ message: 'User already exists with this email address' });
+      return res.status(400).json({ message: 'An account already exists with this email address.' });
+    }
+
+    // Validate and format role against Mongoose enum
+    const VALID_ROLES = ['Admin', 'Super Admin', 'Researcher', 'Policymaker', 'Citizen', 'Government Official'];
+    let formattedRole = role;
+    if (!VALID_ROLES.includes(role)) {
+      if (role === 'Citizen / Landowner' || role === 'Landowner') {
+        formattedRole = 'Citizen';
+      } else {
+        formattedRole = 'Citizen';
+      }
     }
 
     const user = await User.create({
       name,
       email,
       password,
-      role: role || 'Citizen',
+      role: formattedRole || 'Citizen',
       organization: organization || 'Government Affiliate',
       state: state || 'National',
-      bio: bio || ''
+      bio: bio || (designation ? `Designation: ${designation}` : '')
     });
 
     if (user) {
+      console.log('[Backend AuthController] User created successfully:', user._id);
       res.status(201).json({
+        success: true,
         _id: user._id,
         name: user.name,
         email: user.email,
@@ -42,10 +71,11 @@ exports.registerUser = async (req, res) => {
         token: generateToken(user._id)
       });
     } else {
-      res.status(400).json({ message: 'Invalid user data provided' });
+      res.status(400).json({ message: 'Invalid user data provided.' });
     }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('[Backend AuthController] Registration Error:', error);
+    res.status(400).json({ message: error.message || 'Registration failed.' });
   }
 };
 

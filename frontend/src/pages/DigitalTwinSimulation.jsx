@@ -91,7 +91,7 @@ export const DigitalTwinSimulation = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[680px]">
         {/* Map Container */}
-        <div className="lg:col-span-8 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden relative">
+        <div className="lg:col-span-8 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden relative z-0 isolate">
           <MapContainer 
             center={[20.5937, 78.9629]} 
             zoom={5} 

@@ -342,7 +342,7 @@ export const GisDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[720px]">
         
         {/* React Leaflet MapContainer (8 Cols) */}
-        <div className="lg:col-span-8 relative rounded-2xl overflow-hidden border border-slate-200 shadow-md bg-white">
+        <div className="lg:col-span-8 relative rounded-2xl overflow-hidden border border-slate-200 shadow-md bg-white z-0 isolate">
           {!mapError ? (
             <MapContainer 
               center={[20.5937, 78.9629]} 

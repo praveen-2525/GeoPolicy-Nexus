@@ -9,8 +9,9 @@ import {
   MapPin, 
   ShieldCheck, 
   ArrowLeft,
-  FileCheck2,
-  CheckCircle2
+  CheckCircle2,
+  AlertCircle,
+  AlertTriangle
 } from 'lucide-react';
 
 const GOI_ROLES = [
@@ -57,31 +58,122 @@ export const RegisterPage = ({ setCurrentPage }) => {
     bio: ''
   });
 
+  const [touched, setTouched] = useState({});
   const [agreed, setAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+  const [backendError, setBackendError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+
+  // Real-time Validation Engine
+  const validate = () => {
+    const errs = {};
+
+    // 1. Full Name (min 3 characters)
+    if (!formData.name.trim()) {
+      errs.name = 'Full Name is required.';
+    } else if (formData.name.trim().length < 3) {
+      errs.name = 'Name must be at least 3 characters long.';
+    }
+
+    // 2. Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email.trim()) {
+      errs.email = 'Official email address is required.';
+    } else if (!emailRegex.test(formData.email.trim())) {
+      errs.email = 'Enter a valid government/organization email.';
+    }
+
+    // 3. Password (min 8 characters)
+    if (!formData.password) {
+      errs.password = 'Password is required.';
+    } else if (formData.password.length < 8) {
+      errs.password = 'Password must contain at least 8 characters.';
+    }
+
+    // 4. Role
+    if (!formData.role) {
+      errs.role = 'Select an official platform role.';
+    }
+
+    // 5. Designation
+    if (!formData.designation.trim()) {
+      errs.designation = 'Designation / title is required.';
+    }
+
+    // 6. Organization
+    if (!formData.organization.trim()) {
+      errs.organization = 'Organization / department is required.';
+    }
+
+    // 7. Declaration
+    if (!agreed) {
+      errs.agreed = 'Please accept the official Government of India portal declaration.';
+    }
+
+    return errs;
+  };
+
+  const errors = validate();
+  const isFormValid = Object.keys(errors).length === 0;
+
+  const handleBlur = (field) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (!touched[e.target.name]) {
+      setTouched((prev) => ({ ...prev, [e.target.name]: true }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!agreed) {
-      setErrorMsg('Please accept the official Government of India portal declaration.');
+    setTouched({
+      name: true,
+      email: true,
+      password: true,
+      role: true,
+      designation: true,
+      organization: true,
+      agreed: true
+    });
+
+    if (!isFormValid) {
       return;
     }
+
     setSubmitting(true);
-    setErrorMsg('');
+    setBackendError('');
+    setSuccessMsg('');
 
     try {
+      console.log('[RegisterPage] Submitting Registration Payload:', formData);
       await register(formData);
       setSubmitting(false);
-      setCurrentPage('dashboard');
+      setSuccessMsg('Registration complete! Digital credentials issued successfully.');
+      setTimeout(() => {
+        setCurrentPage('dashboard');
+      }, 1000);
     } catch (err) {
+      console.error('[RegisterPage] Registration Error from Backend:', err.message);
       setSubmitting(false);
-      setErrorMsg(err.message || 'Registration failed. Please try again.');
+      setBackendError(err.message || 'Registration failed. Please check your inputs.');
     }
+  };
+
+  // Helper function to resolve input border classes based on real-time validation
+  const getInputClasses = (fieldName) => {
+    const isFieldTouched = touched[fieldName];
+    const hasFieldError = errors[fieldName];
+
+    if (isFieldTouched && hasFieldError) {
+      return 'w-full bg-red-50/40 border border-red-500 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-500';
+    }
+    if (isFieldTouched && !hasFieldError) {
+      return 'w-full bg-emerald-50/30 border border-emerald-500 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-emerald-600';
+    }
+    return 'w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white';
   };
 
   return (
@@ -116,18 +208,31 @@ export const RegisterPage = ({ setCurrentPage }) => {
 
         <div className="p-6 sm:p-8 space-y-6">
 
-          {errorMsg && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700">
-              {errorMsg}
+          {/* Backend Error Alert Banner */}
+          {backendError && (
+            <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 font-medium flex items-start gap-2.5">
+              <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+              <div>
+                <strong className="block text-red-800 font-bold mb-0.5">Registration Failed:</strong>
+                <span>{backendError}</span>
+              </div>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Success Banner */}
+          {successMsg && (
+            <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 font-medium flex items-center gap-2.5">
+              <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600 shrink-0" />
+              <span className="font-bold">{successMsg}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6" noValidate>
             
             {/* Step 1: Role Selection Cards */}
             <div>
               <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-2 font-mono">
-                1. Select Platform Role
+                1. Select Platform Role <span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {GOI_ROLES.map((r) => {
@@ -135,7 +240,10 @@ export const RegisterPage = ({ setCurrentPage }) => {
                   return (
                     <div
                       key={r.id}
-                      onClick={() => setFormData({ ...formData, role: r.id })}
+                      onClick={() => {
+                        setFormData({ ...formData, role: r.id });
+                        handleBlur('role');
+                      }}
                       className={`p-3.5 rounded-xl border transition-all cursor-pointer ${
                         isSelected
                           ? 'border-[#0A3678] bg-blue-50/70 shadow-sm ring-1 ring-[#0A3678]'
@@ -153,6 +261,12 @@ export const RegisterPage = ({ setCurrentPage }) => {
                   );
                 })}
               </div>
+              {touched.role && errors.role && (
+                <p className="text-[11px] text-red-600 font-semibold mt-1.5 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3 text-red-500 shrink-0" />
+                  <span>{errors.role}</span>
+                </p>
+              )}
             </div>
 
             {/* Step 2: Personal & Official Details */}
@@ -162,8 +276,12 @@ export const RegisterPage = ({ setCurrentPage }) => {
               </label>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
+                {/* Full Name */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Full Legal Name</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Full Legal Name <span className="text-red-500">*</span>
+                  </label>
                   <div className="relative">
                     <User className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                     <input
@@ -172,14 +290,24 @@ export const RegisterPage = ({ setCurrentPage }) => {
                       required
                       value={formData.name}
                       onChange={handleChange}
+                      onBlur={() => handleBlur('name')}
                       placeholder="e.g. Dr. Ramesh Sundaram"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white"
+                      className={getInputClasses('name')}
                     />
                   </div>
+                  {touched.name && errors.name && (
+                    <p className="text-[11px] text-red-600 font-semibold mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3 text-red-500 shrink-0" />
+                      <span>{errors.name}</span>
+                    </p>
+                  )}
                 </div>
 
+                {/* Email Address */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Official Email Address</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Official Email Address <span className="text-red-500">*</span>
+                  </label>
                   <div className="relative">
                     <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                     <input
@@ -188,14 +316,24 @@ export const RegisterPage = ({ setCurrentPage }) => {
                       required
                       value={formData.email}
                       onChange={handleChange}
+                      onBlur={() => handleBlur('email')}
                       placeholder="e.g. ramesh@iitd.ac.in"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white"
+                      className={getInputClasses('email')}
                     />
                   </div>
+                  {touched.email && errors.email && (
+                    <p className="text-[11px] text-red-600 font-semibold mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3 text-red-500 shrink-0" />
+                      <span>{errors.email}</span>
+                    </p>
+                  )}
                 </div>
 
+                {/* Designation */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Designation / Title</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Designation / Title <span className="text-red-500">*</span>
+                  </label>
                   <div className="relative">
                     <Building className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                     <input
@@ -204,14 +342,24 @@ export const RegisterPage = ({ setCurrentPage }) => {
                       required
                       value={formData.designation}
                       onChange={handleChange}
+                      onBlur={() => handleBlur('designation')}
                       placeholder="e.g. Associate Professor / Joint Secretary"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white"
+                      className={getInputClasses('designation')}
                     />
                   </div>
+                  {touched.designation && errors.designation && (
+                    <p className="text-[11px] text-red-600 font-semibold mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3 text-red-500 shrink-0" />
+                      <span>{errors.designation}</span>
+                    </p>
+                  )}
                 </div>
 
+                {/* Organization */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Organization / Department</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Organization / Department <span className="text-red-500">*</span>
+                  </label>
                   <div className="relative">
                     <Building className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                     <input
@@ -220,12 +368,20 @@ export const RegisterPage = ({ setCurrentPage }) => {
                       required
                       value={formData.organization}
                       onChange={handleChange}
+                      onBlur={() => handleBlur('organization')}
                       placeholder="e.g. IIT Delhi / State Revenue Board"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white"
+                      className={getInputClasses('organization')}
                     />
                   </div>
+                  {touched.organization && errors.organization && (
+                    <p className="text-[11px] text-red-600 font-semibold mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3 text-red-500 shrink-0" />
+                      <span>{errors.organization}</span>
+                    </p>
+                  )}
                 </div>
 
+                {/* State Jurisdiction */}
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">State Jurisdiction</label>
                   <div className="relative">
@@ -243,8 +399,11 @@ export const RegisterPage = ({ setCurrentPage }) => {
                   </div>
                 </div>
 
+                {/* Password */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Create Secure Password</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Create Secure Password <span className="text-red-500">*</span>
+                  </label>
                   <div className="relative">
                     <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                     <input
@@ -253,21 +412,38 @@ export const RegisterPage = ({ setCurrentPage }) => {
                       required
                       value={formData.password}
                       onChange={handleChange}
-                      placeholder="••••••••"
-                      className="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white"
+                      onBlur={() => handleBlur('password')}
+                      placeholder="At least 8 characters"
+                      className={getInputClasses('password')}
                     />
                   </div>
+                  {touched.password && errors.password ? (
+                    <p className="text-[11px] text-red-600 font-semibold mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3 text-red-500 shrink-0" />
+                      <span>{errors.password}</span>
+                    </p>
+                  ) : (
+                    <p className="text-[10px] text-slate-400 mt-1">
+                      Password must contain at least 8 characters
+                    </p>
+                  )}
                 </div>
+
               </div>
             </div>
 
             {/* Official Declaration Checkbox */}
-            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+            <div className={`p-3.5 border rounded-xl space-y-2 transition-all ${
+              touched.agreed && errors.agreed ? 'bg-red-50/50 border-red-400' : 'bg-slate-50 border-slate-200'
+            }`}>
               <label className="flex items-start gap-2.5 text-xs text-slate-600 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={agreed}
-                  onChange={(e) => setAgreed(e.target.checked)}
+                  onChange={(e) => {
+                    setAgreed(e.target.checked);
+                    setTouched((prev) => ({ ...prev, agreed: true }));
+                  }}
                   className="mt-0.5 rounded border-slate-300 text-[#0A3678]"
                 />
                 <span className="leading-relaxed">
@@ -276,12 +452,23 @@ export const RegisterPage = ({ setCurrentPage }) => {
                   <strong> Digital Personal Data Protection (DPDP) Act, 2023</strong>.
                 </span>
               </label>
+              {touched.agreed && errors.agreed && (
+                <p className="text-[11px] text-red-600 font-semibold mt-1 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3 text-red-500 shrink-0" />
+                  <span>{errors.agreed}</span>
+                </p>
+              )}
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
-              disabled={submitting}
-              className="w-full py-3 rounded-lg bg-[#0A3678] hover:bg-[#002244] text-white font-bold text-xs shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+              disabled={!isFormValid || submitting}
+              className={`w-full py-3 rounded-lg font-bold text-xs shadow-md flex items-center justify-center gap-2 transition-all ${
+                !isFormValid || submitting
+                  ? 'bg-slate-300 text-slate-500 cursor-not-allowed opacity-80'
+                  : 'bg-[#0A3678] hover:bg-[#002244] text-white cursor-pointer'
+              }`}
             >
               {submitting ? (
                 <span>Generating Digital Credentials...</span>
@@ -292,6 +479,13 @@ export const RegisterPage = ({ setCurrentPage }) => {
                 </>
               )}
             </button>
+
+            {!isFormValid && (
+              <p className="text-[11px] text-slate-400 text-center font-mono">
+                Complete all required fields with valid inputs to enable registration.
+              </p>
+            )}
+
           </form>
 
         </div>
